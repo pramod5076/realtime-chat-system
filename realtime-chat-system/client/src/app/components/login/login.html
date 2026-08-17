@@ -1,0 +1,64 @@
+<div class="login-container">
+  <div class="background-decor">
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+  </div>
+  
+  <div class="glass-panel login-card animate-fade-in">
+    <div class="card-header">
+      <div class="app-logo">💬</div>
+      <h2>Welcome Back</h2>
+      <p>Log in to access your secure chat workspace</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      @if (errorMessage()) {
+        <div class="error-banner">
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <input 
+          id="email" 
+          type="email" 
+          formControlName="email" 
+          class="form-input" 
+          placeholder="name@example.com"
+          [class.input-error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+        />
+        @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+          <span class="form-error">Please enter a valid email address</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input 
+          id="password" 
+          type="password" 
+          formControlName="password" 
+          class="form-input" 
+          placeholder="••••••••"
+          [class.input-error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+        />
+        @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+          <span class="form-error">Password is required</span>
+        }
+      </div>
+
+      <button type="submit" class="btn btn-primary login-btn" [disabled]="loginForm.invalid || loading()">
+        @if (loading()) {
+          <span class="spinner"></span> Logging in...
+        } @else {
+          Continue to Chat
+        }
+      </button>
+
+      <div class="card-footer">
+        <p>Don't have an account? <a routerLink="/register">Sign up free</a></p>
+      </div>
+    </form>
+  </div>
+</div>

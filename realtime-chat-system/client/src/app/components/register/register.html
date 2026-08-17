@@ -1,0 +1,85 @@
+<div class="login-container">
+  <div class="background-decor">
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+  </div>
+  
+  <div class="glass-panel login-card animate-fade-in">
+    <div class="card-header">
+      <div class="app-logo">💬</div>
+      <h2>Create Account</h2>
+      <p>Sign up to start chatting with your team in real time</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="login-form">
+      @if (errorMessage()) {
+        <div class="error-banner">
+          {{ errorMessage() }}
+        </div>
+      }
+
+      @if (successMessage()) {
+        <div class="success-banner">
+          {{ successMessage() }}
+        </div>
+      }
+
+      <div class="form-group">
+        <label class="form-label" for="username">Username</label>
+        <input 
+          id="username" 
+          type="text" 
+          formControlName="username" 
+          class="form-input" 
+          placeholder="johndoe"
+          [class.input-error]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched"
+        />
+        @if (registerForm.get('username')?.invalid && registerForm.get('username')?.touched) {
+          <span class="form-error">Username must be at least 3 characters long</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <input 
+          id="email" 
+          type="email" 
+          formControlName="email" 
+          class="form-input" 
+          placeholder="name@example.com"
+          [class.input-error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+        />
+        @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+          <span class="form-error">Please enter a valid email address</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input 
+          id="password" 
+          type="password" 
+          formControlName="password" 
+          class="form-input" 
+          placeholder="••••••••"
+          [class.input-error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+        />
+        @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+          <span class="form-error">Password must be at least 6 characters long</span>
+        }
+      </div>
+
+      <button type="submit" class="btn btn-primary login-btn" [disabled]="registerForm.invalid || loading()">
+        @if (loading()) {
+          <span class="spinner"></span> Creating account...
+        } @else {
+          Create Account
+        }
+      </button>
+
+      <div class="card-footer">
+        <p>Already have an account? <a routerLink="/login">Log in</a></p>
+      </div>
+    </form>
+  </div>
+</div>

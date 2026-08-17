@@ -1,0 +1,12 @@
+C:\Users\pramo\Desktop\Chat\realtime-chat-system\ChatApp.Core\bin\Debug\net10.0\ChatApp.Core.deps.json
+C:\Users\pramo\Desktop\Chat\realtime-chat-system\ChatApp.Core\bin\Debug\net10.0\ChatApp.Core.dll
+C:\Users\pramo\Desktop\Chat\realtime-chat-system\ChatApp.Core\bin\Debug\net10.0\ChatApp.Core.pdb
+C:\Users\pramo\Desktop\Chat\realtime-chat-system\ChatApp.Core\obj\Debug\net10.0\ChatApp.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\pramo\Desktop\Chat\realtime-chat-system\ChatApp.Core\obj\Debug\net10.0\ChatApp.Core.AssemblyInfoInputs.cache
+C:\Users\pramo\Desktop\Chat\realtime-chat-system\ChatApp.Core\obj\Debug\net10.0\ChatApp.Core.AssemblyInfo.cs
+C:\Users\pramo\Desktop\Chat\realtime-chat-system\ChatApp.Core\obj\Debug\net10.0\ChatApp.Core.csproj.CoreCompileInputs.cache
+C:\Users\pramo\Desktop\Chat\realtime-chat-system\ChatApp.Core\obj\Debug\net10.0\ChatApp.Core.sourcelink.json
+C:\Users\pramo\Desktop\Chat\realtime-chat-system\ChatApp.Core\obj\Debug\net10.0\ChatApp.Core.dll
+C:\Users\pramo\Desktop\Chat\realtime-chat-system\ChatApp.Core\obj\Debug\net10.0\refint\ChatApp.Core.dll
+C:\Users\pramo\Desktop\Chat\realtime-chat-system\ChatApp.Core\obj\Debug\net10.0\ChatApp.Core.pdb
+C:\Users\pramo\Desktop\Chat\realtime-chat-system\ChatApp.Core\obj\Debug\net10.0\ref\ChatApp.Core.dll

@@ -1,0 +1,268 @@
+<div class="chat-workspace">
+  <!-- Sidebar -->
+  <aside class="sidebar glass-panel">
+    <!-- User Profile Header -->
+    <div class="user-header">
+      <div class="user-info">
+        <div class="avatar user-avatar">
+          {{ getUserAvatarInitials(currentUser()?.username || 'U') }}
+        </div>
+        <div class="user-details">
+          <h3>{{ currentUser()?.username }}</h3>
+          <span class="user-status-indicator">
+            <span class="status-dot online"></span>
+            Online
+          </span>
+        </div>
+      </div>
+      <button class="logout-btn" (click)="logout()" title="Log out">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      </button>
+    </div>
+
+    <!-- Search Users / Create Conversations -->
+    <div class="search-box">
+      <div class="search-input-wrapper">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input 
+          type="text" 
+          placeholder="Search users to start a chat..." 
+          [(ngModel)]="searchQuery" 
+          (input)="onSearch()"
+        />
+      </div>
+      
+      <!-- Search Results Dropdown -->
+      @if (searchResults().length > 0) {
+        <div class="search-results glass-panel animate-fade-in">
+          <div class="results-header">Search Results</div>
+          @for (user of searchResults(); track user.id) {
+            <div class="search-item" (click)="startPrivateChat(user)">
+              <div class="avatar result-avatar">{{ getUserAvatarInitials(user.username) }}</div>
+              <div class="result-info">
+                <div class="result-name">{{ user.username }}</div>
+                <div class="result-email">{{ user.email }}</div>
+              </div>
+              @if (user.isOnline) {
+                <span class="status-badge online">online</span>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Chats Section Header -->
+    <div class="section-header">
+      <h4>CONVERSATIONS</h4>
+      <button class="new-group-btn" (click)="openGroupModal()" title="New Group Chat">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        New Group
+      </button>
+    </div>
+
+    <!-- Conversations List -->
+    <div class="chat-list">
+      @if (chats().length === 0) {
+        <div class="empty-list-placeholder">
+          <p>No active conversations yet.</p>
+          <p class="sub">Search users above to start a chat!</p>
+        </div>
+      } @else {
+        @for (chat of chats(); track chat.id) {
+          <div 
+            class="chat-item" 
+            [class.active]="activeChat()?.id === chat.id"
+            (click)="selectChat(chat)"
+          >
+            <div class="avatar chat-avatar">
+              {{ getChatAvatarInitials(chat) }}
+              @if (getOtherMemberOnlineStatus(chat)) {
+                <span class="avatar-status-dot online"></span>
+              }
+            </div>
+            
+            <div class="chat-item-content">
+              <div class="chat-item-header">
+                <span class="chat-item-name">{{ getChatDisplayName(chat) }}</span>
+                @if (chat.lastMessage) {
+                  <span class="chat-item-time">
+                    {{ chat.lastMessage.sentAt | date:'shortTime' }}
+                  </span>
+                }
+              </div>
+              
+              <div class="chat-item-footer">
+                <span class="chat-item-preview">
+                  @if (chat.lastMessage) {
+                    <span class="sender-name">{{ chat.lastMessage.senderUsername }}:</span>
+                    {{ chat.lastMessage.content }}
+                  } @else {
+                    No messages yet
+                  }
+                </span>
+                
+                @if (chat.chatType === 'Group') {
+                  <span class="group-tag">group</span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  </aside>
+
+  <!-- Chat Area -->
+  <main class="chat-area glass-panel">
+    @if (!activeChat()) {
+      <div class="welcome-container animate-fade-in">
+        <div class="welcome-icon">💬</div>
+        <h2>Welcome to ChatApp, {{ currentUser()?.username }}!</h2>
+        <p>Select an existing conversation, search for your team members on the sidebar, or create a group to start messaging.</p>
+      </div>
+    } @else {
+      <!-- Chat Header -->
+      <div class="chat-pane-header">
+        <div class="chat-meta">
+          <div class="avatar active-chat-avatar">
+            {{ getChatAvatarInitials(activeChat()!) }}
+            @if (getOtherMemberOnlineStatus(activeChat()!)) {
+              <span class="avatar-status-dot online"></span>
+            }
+          </div>
+          <div class="active-chat-details">
+            <h2>{{ getChatDisplayName(activeChat()!) }}</h2>
+            <p class="status-text">
+              @if (activeChat()?.chatType === 'Group') {
+                {{ activeChat()?.members?.length }} members
+              } @else {
+                {{ getOtherMemberLastSeen(activeChat()!) }}
+              }
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages Thread -->
+      <div class="messages-thread" #messageContainer>
+        @if (messages().length === 0) {
+          <div class="empty-thread-placeholder">
+            <div class="illustration">✉️</div>
+            <p>This is the beginning of your conversation.</p>
+            <p class="sub">Say hello to get started!</p>
+          </div>
+        } @else {
+          @for (msg of messages(); track msg.id) {
+            <div 
+              class="message-bubble-wrapper"
+              [class.sent]="msg.senderId === currentUser()?.id"
+            >
+              @if (msg.senderId !== currentUser()?.id) {
+                <div class="avatar bubble-avatar">
+                  {{ getUserAvatarInitials(msg.senderUsername) }}
+                </div>
+              }
+              
+              <div class="message-bubble-content">
+                @if (activeChat()?.chatType === 'Group' && msg.senderId !== currentUser()?.id) {
+                  <span class="bubble-sender">{{ msg.senderUsername }}</span>
+                }
+                
+                <div class="message-bubble">
+                  {{ msg.content }}
+                </div>
+                
+                <span class="bubble-time">
+                  {{ msg.sentAt | date:'shortTime' }}
+                </span>
+              </div>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- Chat Input -->
+      <form class="chat-input-area" (ngSubmit)="sendMessage()">
+        <input 
+          type="text" 
+          placeholder="Write your message here..." 
+          [(ngModel)]="newMessageContent" 
+          name="message" 
+          autocomplete="off"
+        />
+        <button type="submit" class="btn btn-primary send-btn" [disabled]="!newMessageContent.trim()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
+      </form>
+    }
+  </main>
+</div>
+
+<!-- New Group Modal -->
+@if (showGroupModal()) {
+  <div class="modal-overlay animate-fade-in" (click)="closeGroupModal()">
+    <div class="modal-card glass-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Create Group Chat</h3>
+        <button class="close-modal-btn" (click)="closeGroupModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="grp-name">Group Name</label>
+          <input 
+            id="grp-name" 
+            type="text" 
+            [(ngModel)]="groupName" 
+            class="form-input" 
+            placeholder="E.g., Design Team"
+          />
+        </div>
+
+        <div class="members-selection-container">
+          <label class="form-label">Select Members</label>
+          <div class="members-selection-list">
+            @if (groupMembersList().length === 0) {
+              <div class="no-members-placeholder">
+                No users available to add.
+              </div>
+            } @else {
+              @for (user of groupMembersList(); track user.id) {
+                <div 
+                  class="member-select-item"
+                  [class.selected]="selectedMemberIds().includes(user.id)"
+                  (click)="toggleMemberSelection(user.id)"
+                >
+                  <div class="member-checkbox">
+                    @if (selectedMemberIds().includes(user.id)) {
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    }
+                  </div>
+                  <div class="avatar member-avatar">{{ getUserAvatarInitials(user.username) }}</div>
+                  <div class="member-details">
+                    <span class="member-name">{{ user.username }}</span>
+                    <span class="member-email">{{ user.email }}</span>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeGroupModal()">Cancel</button>
+        <button 
+          class="btn btn-primary" 
+          [disabled]="!groupName.trim() || selectedMemberIds().length === 0"
+          (click)="createGroupChat()"
+        >
+          Create Group
+        </button>
+      </div>
+    </div>
+  </div>
+}
